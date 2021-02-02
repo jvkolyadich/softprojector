@@ -46,6 +46,10 @@ public:
     QStringList currentChapterList;
 
     int getCurrentChapter();
+    void nextChapter();
+    void previousChapter();
+    bool nextBook();
+    bool previousBook();
 
 public slots:
     QByteArray getHiddenSplitterState();

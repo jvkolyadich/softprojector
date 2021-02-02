@@ -248,6 +248,7 @@ private slots:
 protected:
     void closeEvent(QCloseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    bool eventFilter(QObject *object, QEvent *event);
 };
 
 #endif // SOFTPROJECTOR_HPP

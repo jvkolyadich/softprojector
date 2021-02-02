@@ -585,3 +585,60 @@ void BibleWidget::setBibleSearchActive()
     ui->search_ef->setFocus();
     ui->search_ef->selectAll();
 }
+
+bool BibleWidget::nextBook()
+{
+    int current_book_row = ui->listBook->currentRow();
+    if (current_book_row < (ui->listBook->count() - 1))
+    {
+        ui->listBook->setCurrentRow(current_book_row + 1);
+        return true;
+    }
+    return false;
+}
+
+bool BibleWidget::previousBook()
+{
+     int current_book_row = ui->listBook->currentRow();
+     if (current_book_row > 0)
+     {
+         ui->listBook->setCurrentRow(current_book_row - 1);
+         return true;
+     }
+     return false;
+}
+
+void BibleWidget::nextChapter()
+{
+    int current_chapter_row = ui->listChapterNum->currentRow();
+    if (current_chapter_row < (ui->listChapterNum->count() - 1))
+    {
+        ui->listChapterNum->setCurrentRow(current_chapter_row + 1);
+        sendToProjector(false);
+    }
+    else
+    {
+        if (nextBook())
+            sendToProjector(false);
+    }
+}
+
+void BibleWidget::previousChapter()
+{
+    int current_chapter_row = ui->listChapterNum->currentRow();
+    if (current_chapter_row > 0)
+    {
+        ui->listChapterNum->setCurrentRow(current_chapter_row - 1);
+        ui->chapter_preview_list->setCurrentRow(ui->chapter_preview_list->count() - 1);
+        sendToProjector(false);
+    }
+    else
+    {
+        if (previousBook())
+        {
+            ui->listChapterNum->setCurrentRow(ui->listChapterNum->count() - 1);
+            ui->chapter_preview_list->setCurrentRow(ui->chapter_preview_list->count() - 1);
+            sendToProjector(false);
+        }
+    }
+}
