@@ -97,6 +97,7 @@ private:
     QIntValidator *chapter_validator, *verse_validator;
     QByteArray hidden_splitter_state, shown_splitter_state;
     QButtonGroup search_type_buttongroup;
+    QList<BibleBook> all_active_bible_books;
 };
 
 #endif // BIBLEWIDGET_HPP

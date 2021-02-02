@@ -66,6 +66,16 @@ QStringList Bible::getBooks()
     return book_list;
 }
 
+QList<BibleBook> Bible::getFullBooks()
+{
+    QList<BibleBook> book_list;
+    if( books.count() == 0 )
+        retrieveBooks();
+    for(int i(0); books.count()>i;++i)
+        book_list.append(books.at(i));
+    return book_list;
+}
+
 QString Bible::getBookName(int id)
 {
     QString book;
