@@ -485,7 +485,7 @@ void ProjectorDisplayScreen::setVideoVolume(int level)
 void ProjectorDisplayScreen::setVideoMuted(bool muted)
 {
     QObject *root = dispView->rootObject();
-    QMetaObject::invokeMethod(root,"setVideoVolume",Q_ARG(QVariant,(!muted)));
+    QMetaObject::invokeMethod(root,"setVideoMuted",Q_ARG(QVariant,(muted)));
 }
 
 void ProjectorDisplayScreen::setVideoPosition(qint64 position)

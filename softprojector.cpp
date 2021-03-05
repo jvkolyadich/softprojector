@@ -858,7 +858,6 @@ void SoftProjector::showVideo()
     pds1->setVideoVolume(100);
     if(hasDisplayScreen2)
     {
-        pds2->setVideoVolume(0);
         pds2->setVideoMuted(true);
         pds2->renderVideo(currentVideo);
     }
