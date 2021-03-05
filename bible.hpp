@@ -92,6 +92,7 @@ public slots:
     QList<BibleSearch> searchBible(bool allWords, QRegExp searchExp, int book);
     QList<BibleSearch> searchBible(bool allWords, QRegExp searchExp, int book, int chapter);
     QStringList getBooks();
+    QList<BibleBook> getFullBooks();
     QString getBookName(int id);
     void getVerseRef(QString vId, QString &book, int &chapter, int &verse);
     int getVerseNumberLast(QString vId);

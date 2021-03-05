@@ -83,6 +83,34 @@ void BibleWidget::loadBibles(QString initialId)
     else
         ui->btnLive->setEnabled(true);
 
+    // Get all active bible books
+    if(mySettings.operatorBible != "none")
+    {
+        all_active_bible_books.clear();
+        if (mySettings.operatorBible != mySettings.primaryBible &&
+            mySettings.operatorBible != mySettings.secondaryBible &&
+            mySettings.operatorBible != mySettings.trinaryBible)
+        {
+            bible.setBiblesId(mySettings.operatorBible);
+            all_active_bible_books += bible.getFullBooks();
+        }
+        if (mySettings.trinaryBible != "none")
+        {
+            bible.setBiblesId(mySettings.trinaryBible);
+            all_active_bible_books += bible.getFullBooks();
+        }
+        if (mySettings.secondaryBible != "none")
+        {
+            bible.setBiblesId(mySettings.secondaryBible);
+            all_active_bible_books += bible.getFullBooks();
+        }
+        if (mySettings.primaryBible != "none")
+        {
+            bible.setBiblesId(mySettings.primaryBible);
+            all_active_bible_books += bible.getFullBooks();
+        }
+    }
+
     // Check if primary bible is different that what has been loaded already
     // If it is different, then reload the bible list
     if(initialId!=mySettings.operatorBible)
@@ -196,7 +224,7 @@ void BibleWidget::sendToProjector(bool add_to_history)
 void BibleWidget::on_lineEditBook_textChanged(QString text)
 {
     // Called when the bible book filter field is modified.
-    QStringList all_books = bible.getBooks();
+    QList<BibleBook> operator_books = bible.getFullBooks();
 
     // Remove trailing spaces:
     text = text.trimmed();
@@ -238,41 +266,63 @@ void BibleWidget::on_lineEditBook_textChanged(QString text)
     if( text.isEmpty() )
     {
         // Show all bible books
-        if( ui->listBook->count() != all_books.count() )
+        if( ui->listBook->count() != operator_books.count() )
         {
             // This is an important optimization
             ui->listBook->clear();
-            ui->listBook->addItems(all_books);
+            ui->listBook->addItems(bible.getBooks());
         }
     }
     else
     {
-        // Show only the bible books that match the filter
+        // Stores the filtered books of the operator bible
         QStringList filtered_books;
-        if( text.at(0).isDigit() )
+        // Stores which books from all active bibles have been filtered
+        QStringList filtered_book_ids;
+
+        bool has_num = text.at(0).isDigit();
+        QString num_str = text.at(0);
+
+        // If the search starts with a number remove the first two characters
+        QString name_str = has_num ? text.remove(0, 1): text;
+        // Allow for space inbetween num_str and name_str e.g. "1 Peter"
+        name_str = name_str.trimmed();
+
+        // Go through each book of every active bible
+        for (int i = 0; i < all_active_bible_books.count(); i++)
         {
-            // First character of filter text is a number. Special search, where the
-            // first character must be the first character of the first word of the book;
-            // while the rest of the filter must be the beginning of the second book word.
-            QString num_str(text.at(0));
-            QString name_str = text.remove(0, 1);
-            // Allow for space inbetween num_str and name_str e.g. "1 Peter"
-            name_str = name_str.trimmed();
-            for(int i=0; i<all_books.count(); i++)
+            BibleBook current_book = all_active_bible_books.at(i);
+
+            // If the book is already in the filtered list, go to the next one
+            if (!filtered_book_ids.contains(current_book.bookId))
             {
-                QString book = all_books.at(i);
-                QStringList book_words = book.split(" ");
+                QString current_book_name = current_book.book;
 
-                if( ! book_words.at(0).startsWith(num_str) )
+                // If number or search name don't match the
+                // current book's title, go to the next one
+                if( has_num && current_book_name.at(0) != num_str )
                     continue;
-                if( !book_words.at(1).startsWith(name_str, Qt::CaseInsensitive) )
+                if( !current_book_name.contains(name_str, Qt::CaseInsensitive) )
                     continue;
 
-                filtered_books.append(book);
+                // Go through each book in the operator bible
+                for (int j = 0; j < operator_books.count(); j++)
+                {
+                    QString current_op_book_id = operator_books.at(j).bookId;
+
+                    // If the current operator book is the same as the current book
+                    if (current_op_book_id == current_book.bookId)
+                    {
+                        // Store that the book was added to the filtered list
+                        filtered_book_ids.append(current_op_book_id);
+                        // Add it to the filtered list in the operator bible's language
+                        filtered_books.append(operator_books.at(j).book);
+                        // Stop going through operator books since match was found
+                        break;
+                    }
+                }
             }
         }
-        else
-            filtered_books = all_books.filter(text, Qt::CaseInsensitive);
 
         if( ui->listBook->count() != filtered_books.count() )
         {
