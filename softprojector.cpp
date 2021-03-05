@@ -180,6 +180,9 @@ SoftProjector::SoftProjector(QWidget *parent)
     connect(mediaControls,SIGNAL(muted(bool)),pds1,SLOT(setVideoMuted(bool)));
     connect(mediaControls,SIGNAL(timeChanged(qint64)),this,SLOT(setVideoPosition(qint64)));
 
+    // Listen for events in listShow, used for auto chapter switching
+    ui->listShow->installEventFilter(this);
+
     version_string = "2.2";
     this->setWindowTitle("SoftProjector " + version_string);
 }
@@ -466,6 +469,25 @@ void SoftProjector::keyPressEvent(QKeyEvent *event)
         nextSlide();
     else
         QMainWindow::keyPressEvent(event);
+}
+
+bool SoftProjector::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == ui->listShow && event->type() == QEvent::KeyPress && pType == BIBLE)
+    {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+            int key = keyEvent->key();
+            if ((key == Qt::Key_Up || key == Qt::Key_Left) && ui->listShow->currentRow() == 0) {
+                bibleWidget->previousChapter();
+                return true;
+            } else if ((key == Qt::Key_Down || key == Qt::Key_Right) && ui->listShow->currentRow() == (ui->listShow->count() - 1))
+            {
+                bibleWidget->nextChapter();
+                return true;
+            }
+            return false;
+    }
+    return false;
 }
 
 void SoftProjector::on_actionClose_triggered()
